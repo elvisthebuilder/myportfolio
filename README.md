@@ -1,30 +1,116 @@
-# Elvis noctyx portfolio
+````markdown
+# 🧑‍💻 Elvis Baidoo – Developer Portfolio (Noctyx)
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+Welcome to the official source code of my personal developer portfolio.  
+I built this to showcase my projects, skills, and creativity as a fullstack developer and ethical hacker.
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/elvis-baidoos-projects/v0-elvis-noctyx-portfolio)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/HcQbQB4cyvp)
+Live Demo → [https://your-live-site.com](https://your-live-site.com)
 
-## Overview
+---
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+## 🚀 About Me
 
-## Deployment
+I'm **Elvis Baidoo** (aka **Noctyx**) — a web & mobile developer, ethical hacker, and builder of secure, intelligent, and beautiful digital products.
 
-Your project is live at:
+I’m passionate about:
+- 🔐 Cybersecurity & Red Teaming (creator of [Voidline])
+- 🧠 Building smart SaaS tools like NuroDesk
+- 🎓 Empowering students via platforms like CampusConnect
+- ⚡ Always learning, always experimenting
 
-**[https://vercel.com/elvis-baidoos-projects/v0-elvis-noctyx-portfolio](https://vercel.com/elvis-baidoos-projects/v0-elvis-noctyx-portfolio)**
+---
 
-## Build your app
+## 💻 Tech Stack
 
-Continue building your app on:
+| Area           | Tools / Technologies                                   |
+|----------------|--------------------------------------------------------|
+| Frontend       | React, **Next.js 14 App Router**, TailwindCSS          |
+| Backend        | Supabase, Firebase, Node.js                            |
+| Dev Tools      | Git, GitHub, VS Code, Linux (Kali / Debian)            |
+| Creative Dev   | Figma, Spline, Three.js, React Three Fiber (optional)  |
+| Extras         | Lucide Icons, Framer Motion, ShadCN UI (optional)      |
 
-**[https://v0.dev/chat/projects/HcQbQB4cyvp](https://v0.dev/chat/projects/HcQbQB4cyvp)**
+---
 
-## How It Works
+## ✨ Features
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+- 🌗 Dark/Light Mode toggle
+- 🖥️ Terminal Mode Interface (with hacker-style output)
+- ⚛️ Hero, About, Skills, Projects, Footer
+- 🎯 Minimal, responsive, performance-focused design
+- 🔒 Secure, keyboard-navigable, and SEO-ready
+
+---
+
+## 📁 Project Sections
+
+### 🛠 Skills
+Loop-rendered grid of tech stack badges with dark/light theme handling.
+
+### 🚀 Projects
+Interactive cards for:
+- [Voidline](https://github.com/noctyx/voidline) – Red team terminal framework
+- [CampusConnect](https://campusconnect.dev) – Student skill-exchange SaaS
+- NuroDesk – AI-powered mobile SaaS (Coming Soon)
+
+### 🖥 Terminal Mode
+Switches the entire site to a full-screen terminal interface showing:
+```bash
+> whoami
+> stack
+> contact
+````
+
+---
+
+## 📸 Screenshots
+
+*Coming soon... (or add some manually!)*
+
+---
+
+## 🛠 How to Run Locally
+
+```bash
+git clone https://github.com/noctyx/elvis-portfolio.git
+cd elvis-portfolio
+npm install
+npm run dev
+# open http://localhost:3000
+```
+
+---
+
+## 📦 Deployment
+
+This site is ready for deployment on platforms like:
+
+* [Vercel](https://vercel.com)
+* [Netlify](https://netlify.com)
+* [TinyHost](https://tinyhost.pw)
+* Static Export (via `next export`)
+
+---
+
+## 🧠 Future Ideas
+
+* Add blog or case studies
+* 3D background using Three.js or Spline
+* Command parser in terminal mode
+* Profile image + animations
+* Multilingual support
+
+---
+
+## 📬 Contact Me
+
+📧 Email: [elvis@example.com](mailto:elvis@example.com)
+🐙 GitHub: [github.com/noctyx](https://github.com/noctyx)
+
+---
+
+## 💬 Credits
+
+Made with ❤️ by **Elvis Baidoo**
+Let’s build something legendary.
+
