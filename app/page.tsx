@@ -19,11 +19,14 @@ import {
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Canvas } from "@react-three/fiber"
-import { Environment } from "@react-three/drei"
-import { SubtleParticles } from "./components/subtle-particles"
-import { TerminalInterface } from "./components/terminal-interface"
-import { SocialNodesScene } from "./components/social-nodes-scene" // Updated import
+import dynamic from "next/dynamic"
+
+// Dynamically import Three.js components to avoid SSR issues
+const Canvas = dynamic(() => import("@react-three/fiber").then(mod => ({ default: mod.Canvas })), { ssr: false })
+const Environment = dynamic(() => import("@react-three/drei").then(mod => ({ default: mod.Environment })), { ssr: false })
+const SubtleParticles = dynamic(() => import("./components/subtle-particles").then(mod => ({ default: mod.SubtleParticles })), { ssr: false })
+const TerminalInterface = dynamic(() => import("./components/terminal-interface").then(mod => ({ default: mod.TerminalInterface })), { ssr: false })
+const SocialNodesScene = dynamic(() => import("./components/social-nodes-scene").then(mod => ({ default: mod.SocialNodesScene })), { ssr: false })
 
 export default function Portfolio() {
   const [isDark, setIsDark] = useState(true)
@@ -35,6 +38,8 @@ export default function Portfolio() {
   const [isTyping, setIsTyping] = useState(false)
   const [showSocialReveal, setShowSocialReveal] = useState(false) // State for 3D social scene
   const [hoveredSkill, setHoveredSkill] = useState<string | null>(null)
+
+  const [isClient, setIsClient] = useState(false)
 
   const terminalInputRef = useRef<HTMLInputElement>(null)
   const terminalContentRef = useRef<HTMLDivElement>(null)
@@ -103,6 +108,10 @@ export default function Portfolio() {
     clear: "",
     exit: "Returning to GUI mode...",
   }
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   useEffect(() => {
     if (isDark) {
@@ -184,14 +193,16 @@ export default function Portfolio() {
   if (isTerminal) {
     return (
       <div className="min-h-screen bg-[#0d1117] text-green-400 terminal-font relative overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-20">
-          <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
-            <Suspense fallback={null}>
-              <TerminalInterface />
-              <Environment preset="night" />
-            </Suspense>
-          </Canvas>
-        </div>
+        {isClient && (
+          <div className="absolute inset-0 z-0 opacity-20">
+            <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+              <Suspense fallback={null}>
+                <TerminalInterface />
+                <Environment preset="night" />
+              </Suspense>
+            </Canvas>
+          </div>
+        )}
 
         <div className="relative z-10 p-4 min-h-screen flex flex-col">
           <div className="max-w-4xl mx-auto w-full flex-1">
@@ -250,14 +261,16 @@ export default function Portfolio() {
   return (
     <div className="relative flex min-h-screen flex-col bg-[#0d1117] text-[#e6edf3] overflow-x-hidden">
       {/* Subtle Background Particles */}
-      <div className="fixed inset-0 z-0">
-        <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
-          <Suspense fallback={null}>
-            <SubtleParticles isDark={isDark} />
-            <Environment preset="night" />
-          </Suspense>
-        </Canvas>
-      </div>
+      {isClient && (
+        <div className="fixed inset-0 z-0">
+          <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+            <Suspense fallback={null}>
+              <SubtleParticles isDark={isDark} />
+              <Environment preset="night" />
+            </Suspense>
+          </Canvas>
+        </div>
+      )}
 
       {/* Grid Background */}
       <div
@@ -312,14 +325,6 @@ export default function Portfolio() {
             >
               <Terminal size={20} />
             </Button>
-            <Button
-              onClick={() => setIsDark(!isDark)}
-              variant="ghost"
-              size="icon"
-              className="h-10 w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
-            >
-              {isDark ? <Sun size={20} /> : <Moon size={20} />}
-            </Button>
           </div>
         </header>
 
@@ -336,7 +341,7 @@ export default function Portfolio() {
               <div className="mt-8 flex flex-wrap gap-4 justify-center">
                 <Button
                   size="lg"
-                  className="min-w-[140px] h-12 rounded-full bg-[#4195f6] px-6 text-base font-bold text-[#0d1117] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_#4195f6]"
+                  className="min-w-[140px] h-12 rounded-full bg-[#4195f6] px-6 text-base hover:text-white font-bold text-[#0d1117] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_20px_#4195f6]"
                   onClick={() => setShowSocialReveal(true)} // Open reveal
                 >
                   Contact Me
@@ -473,7 +478,7 @@ export default function Portfolio() {
           </div>
         </main>
       </div>
-      <SocialNodesScene isOpen={showSocialReveal} onClose={() => setShowSocialReveal(false)} />
+      {isClient && <SocialNodesScene isOpen={showSocialReveal} onClose={() => setShowSocialReveal(false)} />}
     </div>
   )
 }
