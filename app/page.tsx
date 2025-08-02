@@ -27,8 +27,8 @@ import {
   SiGreensock,
   SiPython,
   SiDocker,
-  SiAmazonaws,
 } from "react-icons/si"
+import { FaAws } from "react-icons/fa";
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import dynamic from "next/dynamic"
@@ -84,7 +84,7 @@ export default function Portfolio() {
     Python: SiPython,
     Cybersecurity: Shield, // Keep Shield for cybersecurity as it's conceptual
     Docker: SiDocker,
-    AWS: SiAmazonaws,
+    AWS: FaAws, 
   }
 
   const projects = [
