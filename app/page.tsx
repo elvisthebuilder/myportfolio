@@ -17,6 +17,18 @@ import {
   Shield,
   Cloud,
 } from "lucide-react"
+import {
+  SiNextdotjs,
+  SiTypescript,
+  SiSupabase,
+  SiLinux,
+  SiReact,
+  SiThreedotjs,
+  SiGreensock,
+  SiPython,
+  SiDocker,
+  SiAmazonaws,
+} from "react-icons/si"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import dynamic from "next/dynamic"
@@ -59,20 +71,20 @@ export default function Portfolio() {
     "AWS",
   ]
 
-  // Mapping skills to Lucide React icons
+  // Mapping skills to actual tech stack icons
   const skillIcons: { [key: string]: React.ElementType } = {
-    "Next.js": Layers, // Using Layers as a generic web icon
-    TypeScript: Code,
-    Supabase: Github, // Using Github as a generic database/platform icon
-    Linux: Terminal,
-    AI: Sparkles, // Using Sparkles for AI
-    "React Native": Smartphone,
-    "Three.js": Box3D, // Using Box3D for 3D
-    GSAP: Zap, // Using Zap for animation
-    Python: Code,
-    Cybersecurity: Shield,
-    Docker: Layers, // Using Layers for containerization
-    AWS: Cloud, // Using Cloud for AWS
+    "Next.js": SiNextdotjs,
+    TypeScript: SiTypescript,
+    Supabase: SiSupabase,
+    Linux: SiLinux,
+    AI: Sparkles, // Keep Sparkles for AI as it's conceptual
+    "React Native": SiReact,
+    "Three.js": SiThreedotjs,
+    GSAP: SiGreensock,
+    Python: SiPython,
+    Cybersecurity: Shield, // Keep Shield for cybersecurity as it's conceptual
+    Docker: SiDocker,
+    AWS: SiAmazonaws,
   }
 
   const projects = [

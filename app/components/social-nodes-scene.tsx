@@ -1,7 +1,7 @@
 "use client"
 import type React from "react"
 import type { ReactElement } from "react"
-import { useRef, useState, Suspense, useCallback, useEffect } from "react"
+import { useRef, useState, Suspense, useCallback, useEffect, useMemo } from "react"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { Html, Line, Environment, Circle } from "@react-three/drei"
 import * as THREE from "three"
@@ -40,8 +40,6 @@ interface SocialPlanetProps {
   circleProgress: number // New prop for circle transition progress
 }
 
-const FULL_CIRCLE_RADIUS = 3.5 // Define this constant for the full circle layout
-
 function SocialPlanet({
   link,
   orbitRadius,
@@ -77,14 +75,14 @@ function SocialPlanet({
 
   // Full Circle calculations
   const circleAngle = (index / totalCount) * (2 * Math.PI) // Evenly spaced
-  const circleX = Math.cos(circleAngle) * FULL_CIRCLE_RADIUS
-  const circleY = Math.sin(circleAngle) * FULL_CIRCLE_RADIUS
+  const circleX = Math.cos(circleAngle) * ((link as any).circleRadius || 2.5)
+  const circleY = Math.sin(circleAngle) * ((link as any).circleRadius || 2.5)
   const circleRotation = circleAngle + Math.PI / 2 // Face outwards
 
   let currentX: number, currentY: number, currentRotation: number
 
   if (isDockMode && dockProgress > 0) {
-    const spacing = 1.8 // Increased spacing for better separation
+    const spacing = (link as any).dockSpacing || 1.0
     const totalWidth = (totalCount - 1) * spacing
     const startX = -totalWidth / 2
 
@@ -102,7 +100,7 @@ function SocialPlanet({
       staggerDelay = index * baseStagger // Stagger from left to right based on the new reversed order
     }
 
-    const dockY = dockPosition === "top" ? 2.5 : -2.5 // Adjusted dockY for more space
+    const dockY = dockPosition === "top" ? ((link as any).dockY || 2.0) : -((link as any).dockY || 2.0)
 
     const staggeredProgress = Math.max(0, Math.min((dockProgress - staggerDelay) / (1 - staggerDelay), 1))
 
@@ -147,7 +145,7 @@ function SocialPlanet({
       </Circle>
       <Html center onClick={() => window.open(link.href, "_blank")} transform>
         <div
-          className="flex items-center justify-center cursor-pointer p-5 w-16 h-16 rounded-full"
+          className={`flex items-center justify-center cursor-pointer ${(link as any).containerPadding || 'p-2'} ${(link as any).containerSize || 'w-8 h-8'} rounded-full`}
           style={{ cursor: "pointer" }}
         >
           {link.icon}
@@ -166,72 +164,97 @@ export function SocialNodesScene({ isOpen, onClose }: SocialNodesSceneProps) {
   const [isDockMode, setIsDockMode] = useState(false)
   const [dockPosition, setDockPosition] = useState<"top" | "bottom">("bottom")
   const [dockProgress, setDockProgress] = useState(0)
-  const [isCircleMode, setIsCircleMode] = useState(false) // New state for circle mode
-  const [circleProgress, setCircleProgress] = useState(0) // New state for circle transition progress
+  const [isCircleMode, setIsCircleMode] = useState(false)
+  const [circleProgress, setCircleProgress] = useState(0)
+  const [screenSize, setScreenSize] = useState({ width: 0, height: 0 })
 
-  const centralNodePosition: [number, number, number] = [0, 0, 0] // Avatar will be at the center
-  const UNIFORM_ORBIT_RADIUS = 2.0 // Single constant for all icons
+  useEffect(() => {
+    const updateScreenSize = () => {
+      setScreenSize({ width: window.innerWidth, height: window.innerHeight })
+    }
+    updateScreenSize()
+    window.addEventListener('resize', updateScreenSize)
+    return () => window.removeEventListener('resize', updateScreenSize)
+  }, [])
+
+  const responsiveValues = useMemo(() => {
+    const isMobile = screenSize.width < 640
+    const isTablet = screenSize.width >= 640 && screenSize.width < 1024
+    
+    return {
+      orbitRadius: isMobile ? 1.2 : isTablet ? 1.6 : 2.0,
+      circleRadius: isMobile ? 1.1 : isTablet ? 1.9 : 2.5,
+      dockSpacing: isMobile ? 0.5 : isTablet ? 1.0 : 1.4,
+      dockY: isMobile ? 1.4 : isTablet ? 1.8 : 2.5,
+      iconSize: isMobile ? 'w-4 h-4' : isTablet ? 'w-5 h-5' : 'w-6 h-6',
+      containerSize: isMobile ? 'w-6 h-6' : isTablet ? 'w-8 h-8' : 'w-12 h-12',
+      containerPadding: isMobile ? 'p-1' : isTablet ? 'p-2' : 'p-3'
+    }
+  }, [screenSize.width])
+
+  const centralNodePosition: [number, number, number] = [0, 0, 0]
+  const UNIFORM_ORBIT_RADIUS = responsiveValues.orbitRadius
 
   const socialPlanets = [
     {
       name: "Email",
-      icon: <FaEnvelope className="w-6 h-6" style={{ color: "#EA4335" }} />,
+      icon: <FaEnvelope className={responsiveValues.iconSize} style={{ color: "#EA4335" }} />,
       href: "mailto:elvis@noctyx.dev",
       description: "Send me an email",
       color: "#EA4335",
       size: 0.25,
-      orbitRadius: UNIFORM_ORBIT_RADIUS,
       orbitSpeed: 0.008,
+      ...responsiveValues
     },
     {
       name: "LinkedIn",
-      icon: <FaLinkedin className="w-6 h-6" style={{ color: "#0A66C2" }} />,
+      icon: <FaLinkedin className={responsiveValues.iconSize} style={{ color: "#0A66C2" }} />,
       href: "https://linkedin.com/in/elvisnoctyx",
       description: "Connect professionally",
       color: "#0A66C2",
       size: 0.3,
-      orbitRadius: UNIFORM_ORBIT_RADIUS,
       orbitSpeed: 0.006,
+      ...responsiveValues
     },
     {
       name: "X (Twitter)",
-      icon: <FaTwitter className="w-6 h-6" style={{ color: "#1DA1F2" }} />,
+      icon: <FaTwitter className={responsiveValues.iconSize} style={{ color: "#1DA1F2" }} />,
       href: "https://twitter.com/noctyx_dev",
       description: "Follow my dev journey",
       color: "#1DA1F2",
       size: 0.28,
-      orbitRadius: UNIFORM_ORBIT_RADIUS,
       orbitSpeed: 0.005,
+      ...responsiveValues
     },
     {
       name: "GitHub",
-      icon: <FaGithub className="w-6 h-6" style={{ color: "#ffffff" }} />, // Changed h-4 to h-6
+      icon: <FaGithub className={responsiveValues.iconSize} style={{ color: "#ffffff" }} />,
       href: "https://github.com/noctyx",
       description: "Explore my code",
       color: "#ffffff",
       size: 0.35,
-      orbitRadius: UNIFORM_ORBIT_RADIUS,
       orbitSpeed: 0.004,
+      ...responsiveValues
     },
     {
       name: "Instagram",
-      icon: <FaInstagram className="w-6 h-6" style={{ color: "#E4405F" }} />,
+      icon: <FaInstagram className={responsiveValues.iconSize} style={{ color: "#E4405F" }} />,
       href: "https://instagram.com/noctyx_dev",
       description: "See my creative side",
       color: "#E4405F",
       size: 0.32,
-      orbitRadius: UNIFORM_ORBIT_RADIUS,
       orbitSpeed: 0.003,
+      ...responsiveValues
     },
     {
       name: "Discord",
-      icon: <FaDiscord className="w-6 h-6" style={{ color: "#5865F2" }} />,
+      icon: <FaDiscord className={responsiveValues.iconSize} style={{ color: "#5865F2" }} />,
       href: "https://discord.gg/your-invite",
       description: "Chat with me live",
       color: "#5865F2",
       size: 0.27,
-      orbitRadius: UNIFORM_ORBIT_RADIUS,
       orbitSpeed: 0.002,
+      ...responsiveValues
     },
   ]
 
@@ -307,7 +330,7 @@ export function SocialNodesScene({ isOpen, onClose }: SocialNodesSceneProps) {
             exit="exit"
             variants={containerVariants}
           >
-            <div className="w-full max-w-4xl h-[600px] rounded-2xl overflow-hidden border border-[#21262d] bg-[#0d1117]/90 backdrop-blur-md">
+            <div className="w-full max-w-4xl h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] rounded-2xl overflow-hidden border border-[#21262d] bg-[#0d1117]/90 backdrop-blur-md mx-2 sm:mx-0">
               <Canvas camera={{ position: [0, 0, 8], zoom: 100 }} dpr={[1, 2]} gl={{ alpha: true }} orthographic={true}>
                 <Suspense fallback={null}>
                   <ambientLight intensity={0.3} />
@@ -320,7 +343,7 @@ export function SocialNodesScene({ isOpen, onClose }: SocialNodesSceneProps) {
                   </mesh>
                   {/* Central Avatar */}
                   <Html center position={[0, 0, 0]}>
-                    <div className="relative w-28 h-28 rounded-full overflow-hidden border-4 border-yellow-400 shadow-2xl shadow-yellow-400/50">
+                    <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden border-2 sm:border-3 md:border-4 border-yellow-400 shadow-2xl shadow-yellow-400/50">
                       <img
                         src="/etb.jpeg"
                         alt="Elvis Baidoo (Noctyx) Profile"
@@ -333,7 +356,7 @@ export function SocialNodesScene({ isOpen, onClose }: SocialNodesSceneProps) {
                     <SocialPlanet
                       key={planet.name}
                       link={planet}
-                      orbitRadius={planet.orbitRadius}
+                      orbitRadius={UNIFORM_ORBIT_RADIUS}
                       orbitSpeed={planet.orbitSpeed}
                       onNodeHover={handleNodeHover}
                       isCurrentlyHovered={hoveredNodeName === planet.name}
@@ -382,7 +405,7 @@ export function SocialNodesScene({ isOpen, onClose }: SocialNodesSceneProps) {
                 </Suspense>
               </Canvas>
               {/* Control Buttons (HTML overlay) */}
-              <div className="absolute top-4 left-4 z-[101] flex flex-col gap-2">
+              <div className="absolute top-2 left-2 sm:top-3 sm:left-3 md:top-4 md:left-4 z-[101] flex flex-col gap-1 sm:gap-2">
                 <Button
                   onClick={() => {
                     if (!isAnimating && !isDockMode && !isCircleMode) {
@@ -408,10 +431,10 @@ export function SocialNodesScene({ isOpen, onClose }: SocialNodesSceneProps) {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
+                  className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
                   disabled={isAnimating || isDockMode || isCircleMode} // Disable if in dock or circle mode
                 >
-                  <span className="text-sm font-mono">↻</span>
+                  <span className="text-xs sm:text-sm font-mono">↻</span>
                 </Button>
                 <Button
                   onClick={async () => {
@@ -448,7 +471,7 @@ export function SocialNodesScene({ isOpen, onClose }: SocialNodesSceneProps) {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
+                  className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
                   disabled={isAnimating}
                 >
                   <span className="text-xs font-mono">
@@ -482,7 +505,7 @@ export function SocialNodesScene({ isOpen, onClose }: SocialNodesSceneProps) {
                   }}
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
+                  className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
                   disabled={isAnimating}
                 >
                   <span className="text-xs font-mono">◎</span> {/* Circle icon */}
@@ -500,21 +523,21 @@ export function SocialNodesScene({ isOpen, onClose }: SocialNodesSceneProps) {
                     }}
                     variant="ghost"
                     size="icon"
-                    className="h-10 w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:hover:text-[#4195f6]"
+                    className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
                   >
                     <span className="text-xs font-mono">◯</span>
                   </Button>
                 )}
               </div>
               {/* Close Button (HTML overlay) */}
-              <div className="absolute top-4 right-4 z-[101]">
+              <div className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 z-[101]">
                 <Button
                   onClick={onClose}
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
+                  className="h-8 w-8 sm:h-9 sm:w-9 md:h-10 md:w-10 rounded-full border border-[#21262d] bg-[#161b22] text-[#7d8590] transition-colors duration-300 hover:border-[#4195f6] hover:text-[#4195f6]"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                 </Button>
               </div>
             </div>

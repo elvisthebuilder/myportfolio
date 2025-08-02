@@ -17,7 +17,10 @@ const chakraPetch = Chakra_Petch({
 export const metadata: Metadata = {
   title: "Elvis Baidoo (Noctyx) - Developer Portfolio",
   description: "Web & Mobile Developer, Ethical Hacker, and SaaS Builder",
-    generator: 'v0.dev'
+    generator: 'elvisthebuilder',
+    icons: {
+      icon: '/etb.jpeg',
+    }
 }
 
 export default function RootLayout({
