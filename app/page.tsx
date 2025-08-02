@@ -116,7 +116,18 @@ export default function Portfolio() {
       "1. Voidline - Red team operations tool\n2. CampusConnect - Student collaboration platform\n3. NuroDesk - AI-powered customer support SaaS",
     contact:
       "📧 Email: elvis@noctyx.dev\n🐙 GitHub: github.com/noctyx\n🌐 Portfolio: noctyx.dev\n💼 LinkedIn: linkedin.com/in/elvisnoctyx",
-    help: "Available commands: whoami, about, stack, projects, contact, clear, exit",
+    // Linux basic commands
+    ls: "projects/\n├── voidline/\n├── campusconnect/\n├── nurodesk/\n└── portfolio/",
+    pwd: "/home/noctyx",
+    date: new Date().toLocaleString(),
+    uptime: "System uptime: 42 days, 13:37 hours",
+    uname: "Linux noctyx-dev 5.15.0-kali3-amd64 #1 SMP Debian x86_64 GNU/Linux",
+    ps: "PID  TTY          TIME CMD\n1337 pts/0    00:00:01 bash\n1338 pts/0    00:00:00 portfolio",
+    cat: "Usage: cat [filename]\nTry: cat about.txt",
+    "cat about.txt": "Elvis Baidoo (Noctyx)\n===================\nFull-stack developer and ethical hacker\nPassionate about cybersecurity and clean code",
+    echo: "Usage: echo [text]\nExample: echo 'Hello World'",
+    history: commandHistory.slice(-10).map((cmd, i) => `${i + 1}  ${cmd}`).join('\n'),
+    help: "Available commands:\n\nPortfolio: whoami, about, stack, projects, contact\nLinux: ls, pwd, date, uptime, uname, ps, cat, echo, history\nSystem: clear, exit",
     clear: "",
     exit: "Returning to GUI mode...",
   }
@@ -135,10 +146,33 @@ export default function Portfolio() {
 
   useEffect(() => {
     if (isTerminal && terminalInputRef.current) {
-      terminalInputRef.current.focus()
+      const focusInput = () => {
+        terminalInputRef.current?.focus()
+      }
+      
+      focusInput()
+      // Ensure focus is maintained
+      const interval = setInterval(focusInput, 100)
+      
       if (terminalOutput === "") {
         setTerminalOutput("Welcome to Noctyx Terminal\nType 'help' for available commands\n\n")
       }
+      
+      return () => clearInterval(interval)
+    }
+  }, [isTerminal])
+
+  // Handle clicks anywhere in terminal to maintain focus
+  useEffect(() => {
+    const handleClick = () => {
+      if (isTerminal && terminalInputRef.current) {
+        terminalInputRef.current.focus()
+      }
+    }
+    
+    if (isTerminal) {
+      document.addEventListener('click', handleClick)
+      return () => document.removeEventListener('click', handleClick)
     }
   }, [isTerminal])
 
@@ -166,6 +200,9 @@ export default function Portfolio() {
       await new Promise((resolve) => setTimeout(resolve, 1000))
       setIsTerminal(false)
       setTerminalOutput("")
+    } else if (cmd.startsWith("echo ")) {
+      const text = command.slice(5)
+      setTerminalOutput((prev) => prev + text + "\n\n")
     } else {
       const output =
         terminalCommands[cmd as keyof typeof terminalCommands] ||
@@ -237,10 +274,13 @@ export default function Portfolio() {
               </Button>
             </div>
 
-            <div className="bg-black/50 backdrop-blur-sm rounded-lg border border-[#21262d] flex-1 flex flex-col min-h-[70vh]">
+            <div 
+              className="bg-black/50 backdrop-blur-sm rounded-lg border border-[#21262d] h-[70vh] cursor-text"
+              onClick={() => terminalInputRef.current?.focus()}
+            >
               <div
                 ref={terminalContentRef}
-                className="flex-1 p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-green-500/30"
+                className="h-full p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-green-500/30"
               >
                 <pre className="whitespace-pre-wrap text-sm leading-relaxed">{terminalOutput}</pre>
                 <div className="flex items-center">
@@ -249,7 +289,7 @@ export default function Portfolio() {
                   <span className="text-purple-400">~</span>
                   <span className="text-white">$ </span>
                   <span className="ml-1">{currentInput}</span>
-                  <span className="animate-pulse ml-1">█</span>
+                  <span className="animate-pulse ml-1">_</span>
                 </div>
               </div>
 
@@ -259,9 +299,10 @@ export default function Portfolio() {
                 value={currentInput}
                 onChange={(e) => setCurrentInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                className="absolute opacity-0 pointer-events-none"
+                className="absolute -left-[9999px] opacity-0"
                 autoComplete="off"
                 disabled={isTyping}
+                autoFocus
               />
             </div>
           </div>
